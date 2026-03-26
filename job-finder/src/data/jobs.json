@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "Part-time Barista",
+    "company": "Cafe Amazon",
+    "salary": "50 บาท/ชั่วโมง",
+    "location": "กรุงเทพ",
+    "type": "Part-time"
+  },
+  {
+    "id": 2,
+    "title": "Frontend Intern",
+    "company": "Tech Startup",
+    "salary": "8000 บาท/เดือน",
+    "location": "Remote",
+    "type": "Internship"
+  }
+]
