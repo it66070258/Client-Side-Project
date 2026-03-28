@@ -8,8 +8,6 @@ import {
   Users,
   Calendar,
   Bookmark,
-  Share2,
-  ChevronLeft,
   Check,
 } from "lucide-react";
 import jsonData from "../data/jobs.json";

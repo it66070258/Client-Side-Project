@@ -22,7 +22,7 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-gray-500">
             <li>
               <Link
-                to="/jobs"
+                to="/"
                 className="hover:text-blue-600 transition-colors"
               >
                 ค้นหางาน
@@ -51,7 +51,7 @@ export default function Footer() {
           <ul className="space-y-3 text-sm text-gray-500">
             <li>
               <Link
-                to="/about"
+                to="#"
                 className="hover:text-blue-600 transition-colors"
               >
                 เกี่ยวกับบริษัท
@@ -59,7 +59,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                to="/contact"
+                to="#"
                 className="hover:text-blue-600 transition-colors"
               >
                 ติดต่อเรา
@@ -67,7 +67,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                to="/privacy"
+                to="#"
                 className="hover:text-blue-600 transition-colors"
               >
                 นโยบายความเป็นส่วนตัว
