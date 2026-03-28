@@ -35,14 +35,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/job/:id"
-              element={
-                <ProtectedRoute>
-                  <JobDetail />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/job/:id" element={<JobDetail />} />
           </Routes>
         </main>
       </div>
