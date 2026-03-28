@@ -6,6 +6,7 @@ import Profile from "./pages/Profile";
 import Bookmark from "./pages/Bookmark";
 import JobDetail from "./pages/JobDetail";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/CheckLogin";
 import "./index.css";
 
 function App() {
@@ -18,9 +19,30 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/bookmark" element={<Bookmark />} />
-            <Route path="/job/:id" element={<JobDetail />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookmark"
+              element={
+                <ProtectedRoute>
+                  <Bookmark />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/job/:id"
+              element={
+                <ProtectedRoute>
+                  <JobDetail />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>

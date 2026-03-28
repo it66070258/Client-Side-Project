@@ -9,10 +9,26 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement actual authentication logic
-    console.log("Login attempt:", { email, password });
-    // Navigate to home page after login
-    navigate("/");
+
+    // ดึง users จาก localStorage
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // หา user ที่ตรง
+    const user = users.find(
+      (u) => u.email === email && u.password === password,
+    );
+
+    if (user) {
+      // เก็บสถานะ login
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      window.dispatchEvent(new Event("storage"));
+      alert("เข้าสู่ระบบสำเร็จ!");
+
+      // ไปหน้า home
+      navigate("/");
+    } else {
+      alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+    }
   };
 
   return (
@@ -42,7 +58,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="example@email.com"
+                placeholder="example@gmail.com"
                 required
               />
             </div>
@@ -110,32 +126,6 @@ export default function Login() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
-                หรือเข้าสู่ระบบด้วย
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google"
-                className="w-5 h-5 mr-2"
-              />
-              <span className="text-sm font-medium text-gray-700">Google</span>
-            </button>
-            <button className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <img
-                src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-                alt="Facebook"
-                className="w-5 h-5 mr-2"
-              />
-              <span className="text-sm font-medium text-gray-700">
-                Facebook
-              </span>
-            </button>
           </div>
         </div>
       </div>

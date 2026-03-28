@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Bookmark, MapPin, Briefcase, Clock } from "lucide-react";
 
-function JobCard({ job }) {
+function JobCard({ job, onToggleBookmark, isBookmarked }) {
   if (!job) return null;
 
   return (
@@ -12,9 +12,11 @@ function JobCard({ job }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            // TODO: Implement bookmark functionality
+            onToggleBookmark(job);
           }}
-          className="absolute top-6 right-6 text-gray-400 hover:text-blue-600 transition-colors z-10"
+          className={`absolute top-6 right-6 transition-colors z-10 ${
+            isBookmarked ? "text-blue-600" : "text-gray-400 hover:text-blue-600"
+          }`}
         >
           <Bookmark className="w-5 h-5" />
         </button>

@@ -27,10 +27,36 @@ export default function Register() {
       return;
     }
 
-    // TODO: Implement actual registration logic
-    console.log("Registration attempt:", formData);
-    // Navigate to login page after registration
-    navigate("/login");
+    // ดึง users เดิมจาก localStorage
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // เช็ค email ซ้ำ
+    const emailExists = users.find((u) => u.email === formData.email);
+    if (emailExists) {
+      alert("อีเมลนี้ถูกใช้งานแล้ว");
+      return;
+    }
+
+    // สร้าง user ใหม่ (ไม่ต้องเก็บ confirmPassword)
+    const newUser = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+    };
+
+    // เพิ่ม user ใหม่
+    users.push(newUser);
+
+    // บันทึกลง localStorage
+    localStorage.setItem("users", JSON.stringify(users));
+
+    localStorage.setItem("currentUser", JSON.stringify(newUser));
+    window.dispatchEvent(new Event("storage"));
+    alert("สมัครสมาชิกสำเร็จ!");
+
+    // ไปหน้า login
+    navigate("/");
   };
 
   return (
@@ -63,7 +89,7 @@ export default function Register() {
                 value={formData.fullName}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="สมชาย ใจดี"
+                placeholder="ชื่อ-นามสกุล"
                 required
               />
             </div>
@@ -85,7 +111,7 @@ export default function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                placeholder="example@email.com"
+                placeholder="example@gmail.com"
                 required
               />
             </div>

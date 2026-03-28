@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   Briefcase,
@@ -29,6 +30,38 @@ export default function JobDetail() {
     ...basicJobInfo,
     ...extraJobInfo,
     description: extraJobInfo.fullDescription || basicJobInfo.description,
+  };
+
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
+  const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
+
+  useEffect(() => {
+    if (!userKey) return;
+    const data = JSON.parse(localStorage.getItem(userKey)) || [];
+    setBookmarkedJobs(data);
+  }, [userKey]);
+
+  const handleToggleBookmark = () => {
+    if (!currentUser) {
+      alert("กรุณาเข้าสู่ระบบเพื่อบันทึกงาน");
+      navigate("/login");
+      return;
+    }
+
+    let updated;
+    if (bookmarkedJobs.find((j) => j.id === job.id)) {
+      updated = bookmarkedJobs.filter((j) => j.id !== job.id);
+    } else {
+      updated = [
+        ...bookmarkedJobs,
+        { ...job, savedAt: new Date().toLocaleDateString() },
+      ];
+    }
+
+    setBookmarkedJobs(updated);
+    localStorage.setItem(userKey, JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -92,7 +125,14 @@ export default function JobDetail() {
                     <button className="flex-1 bg-[#0f172a] hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-xl transition">
                       สมัครงานนี้
                     </button>
-                    <button className="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition text-gray-600 shadow-sm">
+                    <button
+                      onClick={handleToggleBookmark}
+                      className={`p-3 border rounded-xl transition ${
+                        bookmarkedJobs.find((j) => j.id === job.id)
+                          ? "bg-blue-400 text-white"
+                          : "bg-white text-gray-600"
+                      }`}
+                    >
                       <Bookmark className="w-5 h-5" />
                     </button>
                   </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Briefcase, TrendingUp, Search } from "lucide-react";
 import SearchBar from "../components/SearchBar";
@@ -118,6 +118,60 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES.ALL);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("currentUser"),
+  );
+
+  // อัปเดตสถานะเมื่อ localStorage เปลี่ยน (เช่น logout หรือ login จาก tab อื่น)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(!!localStorage.getItem("currentUser"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
+
+  const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
+
+  useEffect(() => {
+    if (!userKey) return;
+    const data = JSON.parse(localStorage.getItem(userKey)) || [];
+    setBookmarkedJobs(data);
+
+    const handleStorage = () => {
+      const newData = JSON.parse(localStorage.getItem(userKey)) || [];
+      setBookmarkedJobs(newData);
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [userKey]);
+
+  const handleToggleBookmark = (job) => {
+    if (!currentUser) {
+      alert("กรุณาเข้าสู่ระบบเพื่อบันทึกงาน");
+      navigate("/login");
+      return;
+    }
+
+    let updated;
+    if (bookmarkedJobs.find((j) => j.id === job.id)) {
+      updated = bookmarkedJobs.filter((j) => j.id !== job.id);
+    } else {
+      updated = [
+        ...bookmarkedJobs,
+        { ...job, savedAt: new Date().toLocaleDateString() },
+      ];
+    }
+
+    setBookmarkedJobs(updated);
+    localStorage.setItem(userKey, JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
+  };
+
   // สร้างรายการหมวดหมู่พร้อมนับจำนวนงานจริง (ใช้ useMemo เพื่อไม่ให้คำนวณใหม่ทุกครั้งที่เรนเดอร์)
   const categories = useMemo(() => buildCategoriesWithCounts(jobsData), []);
 
@@ -216,7 +270,12 @@ export default function Home() {
           {filteredJobs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onToggleBookmark={handleToggleBookmark}
+                  isBookmarked={!!bookmarkedJobs.find((j) => j.id === job.id)}
+                />
               ))}
             </div>
           ) : (
@@ -240,22 +299,24 @@ export default function Home() {
       </section>
 
       {/* ส่วนเชิญชวนให้สมัครสมาชิก (Call to Action) */}
-      <section className="bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6] text-white py-16 px-4 text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            พร้อมที่จะเริ่มต้นอาชีพใหม่?
-          </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto text-lg">
-            สมัครสมาชิกวันนี้และรับการแจ้งเตือนงานที่เหมาะกับคุณ
-          </p>
-          <Link
-            to="/register"
-            className="inline-block bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold text-lg transition-colors"
-          >
-            สมัครสมาชิกฟรี
-          </Link>
-        </div>
-      </section>
+      {!isLoggedIn && (
+        <section className="bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6] text-white py-16 px-4 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              พร้อมที่จะเริ่มต้นอาชีพใหม่?
+            </h2>
+            <p className="text-blue-100 mb-8 max-w-xl mx-auto text-lg">
+              สมัครสมาชิกวันนี้และรับการแจ้งเตือนงานที่เหมาะกับคุณ
+            </p>
+            <Link
+              to="/register"
+              className="inline-block bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-full font-bold text-lg transition-colors"
+            >
+              สมัครสมาชิกฟรี
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ส่วนท้ายของเว็บไซต์ */}
       <Footer />

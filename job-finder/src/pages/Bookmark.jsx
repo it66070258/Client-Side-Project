@@ -1,66 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bookmark as BookmarkIcon, Trash2, ExternalLink } from "lucide-react";
 import JobCard from "../components/JobCard";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Bookmark() {
-  const [bookmarkedJobs, setBookmarkedJobs] = useState([
-    {
-      id: 1,
-      title: "Senior Frontend Developer",
-      company: "Tech Innovation Co.",
-      location: "กรุงเทพมหานคร",
-      type: "Full-time",
-      postedAt: "2 วันที่แล้ว",
-      salary: "60,000 - 80,000 บาท",
-      tags: ["React", "TypeScript", "Tailwind CSS"],
-      icon: "🏢",
-      savedAt: "3 วันที่แล้ว",
-    },
-    {
-      id: 2,
-      title: "UX/UI Designer",
-      company: "Creative Studio Ltd.",
-      location: "เชียงใหม่",
-      type: "Full-time",
-      postedAt: "1 สัปดาห์ที่แล้ว",
-      salary: "40,000 - 55,000 บาท",
-      tags: ["Figma", "UI Design", "User Research"],
-      icon: "🎨",
-      savedAt: "5 วันที่แล้ว",
-    },
-    {
-      id: 3,
-      title: "Backend Developer",
-      company: "Digital Solutions Inc.",
-      location: "กรุงเทพมหานคร",
-      type: "Full-time",
-      postedAt: "3 วันที่แล้ว",
-      salary: "50,000 - 70,000 บาท",
-      tags: ["Node.js", "PostgreSQL", "AWS"],
-      icon: "💻",
-      savedAt: "1 สัปดาห์ที่แล้ว",
-    },
-    {
-      id: 4,
-      title: "Product Manager",
-      company: "Startup Ventures",
-      location: "กรุงเทพมหานคร",
-      type: "Full-time",
-      postedAt: "2 สัปดาห์ที่แล้ว",
-      salary: "70,000 - 90,000 บาท",
-      tags: ["Product Strategy", "Agile", "Jira"],
-      icon: "🚀",
-      savedAt: "2 สัปดาห์ที่แล้ว",
-    },
-  ]);
+  const navigate = useNavigate();
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
+
+  const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
+
+  useEffect(() => {
+    if (!userKey) {
+      setBookmarkedJobs([]);
+      return;
+    }
+    const loadBookmarks = () => {
+      const data = JSON.parse(localStorage.getItem(userKey)) || [];
+      setBookmarkedJobs(data);
+    };
+
+    loadBookmarks();
+    window.addEventListener("storage", loadBookmarks);
+    return () => window.removeEventListener("storage", loadBookmarks);
+  }, [userKey]);
 
   const handleRemoveBookmark = (jobId) => {
-    setBookmarkedJobs(bookmarkedJobs.filter((job) => job.id !== jobId));
+    if (!userKey) return;
+    const updated = bookmarkedJobs.filter((job) => job.id !== jobId);
+    setBookmarkedJobs(updated);
+    localStorage.setItem(userKey, JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleClearAll = () => {
+    if (!userKey) return;
     if (window.confirm("คุณต้องการลบงานที่บันทึกไว้ทั้งหมดใช่หรือไม่?")) {
       setBookmarkedJobs([]);
+      localStorage.removeItem(userKey);
+      window.dispatchEvent(new Event("storage"));
     }
   };
 
@@ -82,6 +60,7 @@ export default function Bookmark() {
               </p>
             </div>
           </div>
+
           {bookmarkedJobs.length > 0 && (
             <button
               onClick={handleClearAll}
@@ -93,12 +72,14 @@ export default function Bookmark() {
           )}
         </div>
 
-        {/* Bookmarked Jobs */}
+        {/* Job List */}
         {bookmarkedJobs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {bookmarkedJobs.map((job) => (
               <div key={job.id} className="relative group">
                 <JobCard job={job} />
+
+                {/* Hover actions */}
                 <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleRemoveBookmark(job.id)}
@@ -107,43 +88,53 @@ export default function Bookmark() {
                   >
                     <Trash2 className="w-4 h-4 text-red-600" />
                   </button>
-                  <button
+
+                  <Link
+                    to={`/job/${job.id}`}
                     className="p-2 bg-white rounded-lg shadow-lg hover:bg-blue-50 transition"
                     title="ดูรายละเอียด"
                   >
                     <ExternalLink className="w-4 h-4 text-blue-600" />
-                  </button>
+                  </Link>
                 </div>
-                <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                  <p className="text-xs text-gray-600">
-                    บันทึกเมื่อ {job.savedAt}
-                  </p>
-                </div>
+
+                {/* วันที่บันทึก */}
+                {job.savedAt && (
+                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <p className="text-xs text-gray-600">
+                      บันทึกเมื่อ {job.savedAt}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         ) : (
+          // Empty State
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
               <BookmarkIcon className="w-12 h-12 text-gray-400" />
             </div>
+
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
               ยังไม่มีงานที่บันทึกไว้
             </h2>
+
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
               เริ่มบันทึกงานที่คุณสนใจเพื่อให้ง่ายต่อการกลับมาดูภายหลัง
             </p>
-            <a
-              href="/"
+
+            <Link
+              to="/"
               className="inline-flex items-center space-x-2 px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
             >
               <span>ค้นหางาน</span>
               <ExternalLink className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         )}
 
-        {/* Tips Section */}
+        {/* Tips */}
         {bookmarkedJobs.length > 0 && (
           <div className="mt-12 bg-blue-50 rounded-2xl p-8 border border-blue-100">
             <h3 className="text-lg font-bold text-gray-900 mb-3">
