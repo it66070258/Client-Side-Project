@@ -3,7 +3,6 @@ import { Search, MapPin } from "lucide-react";
 
 export default function SearchBar({ onSearch }) {
   const [jobQuery, setJobQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,9 +31,9 @@ export default function SearchBar({ onSearch }) {
         <input
           type="text"
           placeholder="สถานที่"
-          value={locationQuery}
-          onChange={(e) => setLocationQuery(e.target.value)}
-          className="w-full pl-8 py-2 md:py-3 outline-none text-gray-900 bg-transparent"
+          disabled
+          className="w-full pl-8 py-2 md:py-3 outline-none text-gray-400 bg-transparent cursor-not-allowed"
+          title="ฟีเจอร์นี้กำลังพัฒนา"
         />
       </div>
       <button

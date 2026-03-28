@@ -5,89 +5,34 @@ import SearchBar from "../components/SearchBar";
 import JobCard from "../components/JobCard";
 import Footer from "../components/Footer";
 import jobsData from "../data/jobs.json";
+import { CATEGORIES } from "../constants/categories";
+import {
+  buildCategoriesWithCounts,
+  searchJobs,
+  filterJobsByCategory,
+} from "../utils/jobUtils";
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("ทั้งหมด");
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES.ALL);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // จัดหมวดหมู่งานตาม tags
-  const getCategoryFromTags = (tags) => {
-    const techKeywords = ["React", "TypeScript", "Node.js", "Python", "Java", "JavaScript", "Flutter", "Docker", "AWS", "MongoDB", "PostgreSQL", "Linux", "Windows Server"];
-    const designKeywords = ["Figma", "UI Design", "Photoshop", "Illustrator", "Branding", "Video Editing"];
-    const marketingKeywords = ["Digital Marketing", "SEO", "Content", "Copywriting"];
-    const financeKeywords = ["Financial Analysis", "Excel", "SAP"];
-    const salesKeywords = ["Sales", "B2B", "CRM"];
-    const managementKeywords = ["Project Management", "Product Strategy", "Agile", "Scrum", "HR Management", "Business Analysis"];
-
-    const tagString = tags.join(" ");
-
-    if (techKeywords.some(keyword => tagString.includes(keyword))) return "เทคโนโลยี";
-    if (designKeywords.some(keyword => tagString.includes(keyword))) return "การออกแบบ";
-    if (marketingKeywords.some(keyword => tagString.includes(keyword))) return "การตลาด";
-    if (financeKeywords.some(keyword => tagString.includes(keyword))) return "การเงิน";
-    if (salesKeywords.some(keyword => tagString.includes(keyword))) return "ขาย";
-    if (managementKeywords.some(keyword => tagString.includes(keyword))) return "บริหารงาน";
-
-    return "อื่นๆ";
-  };
-
-  // สร้าง categories พร้อมนับจำนวนจริง
-  const categories = useMemo(() => {
-    const categoryCounts = {
-      "ทั้งหมด": jobsData.length,
-      "เทคโนโลยี": 0,
-      "การตลาด": 0,
-      "การออกแบบ": 0,
-      "การเงิน": 0,
-      "ขาย": 0,
-      "บริหารงาน": 0,
-      "อื่นๆ": 0,
-    };
-
-    jobsData.forEach(job => {
-      const category = getCategoryFromTags(job.tags);
-      categoryCounts[category]++;
-    });
-
-    return [
-      { name: "ทั้งหมด", count: `${categoryCounts["ทั้งหมด"]} ตำแหน่ง`, icon: "📂" },
-      { name: "เทคโนโลยี", count: `${categoryCounts["เทคโนโลยี"]} ตำแหน่ง`, icon: "💻" },
-      { name: "การตลาด", count: `${categoryCounts["การตลาด"]} ตำแหน่ง`, icon: "📈" },
-      { name: "การออกแบบ", count: `${categoryCounts["การออกแบบ"]} ตำแหน่ง`, icon: "🎨" },
-      { name: "การเงิน", count: `${categoryCounts["การเงิน"]} ตำแหน่ง`, icon: "💰" },
-      { name: "ขาย", count: `${categoryCounts["ขาย"]} ตำแหน่ง`, icon: "🤝" },
-      { name: "บริหารงาน", count: `${categoryCounts["บริหารงาน"]} ตำแหน่ง`, icon: "📋" },
-    ];
-  }, []);
+  // สร้าง categories พร้อมนับจำนวนจริง (คำนวณครั้งเดียว)
+  const categories = useMemo(() => buildCategoriesWithCounts(jobsData), []);
 
   // กรองงานตาม category และ search query
   const filteredJobs = useMemo(() => {
-    let filtered = jobsData;
-
-    // กรองตาม category
-    if (selectedCategory !== "ทั้งหมด") {
-      filtered = filtered.filter(job => {
-        const category = getCategoryFromTags(job.tags);
-        return category === selectedCategory;
-      });
-    }
-
-    // กรองตาม search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(query) ||
-        job.company.toLowerCase().includes(query) ||
-        job.location.toLowerCase().includes(query) ||
-        job.tags.some(tag => tag.toLowerCase().includes(query))
-      );
-    }
-
+    let filtered = filterJobsByCategory(jobsData, selectedCategory);
+    filtered = searchJobs(filtered, searchQuery);
     return filtered;
   }, [selectedCategory, searchQuery]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory(CATEGORIES.ALL);
   };
 
   return (
@@ -166,7 +111,9 @@ export default function Home() {
             <div className="flex items-center space-x-2">
               <Briefcase className="text-blue-600 w-6 h-6" />
               <h2 className="text-2xl font-bold text-gray-900">
-                {selectedCategory === "ทั้งหมด" ? "งานทั้งหมด" : `งาน${selectedCategory}`}
+                {selectedCategory === CATEGORIES.ALL
+                  ? "งานทั้งหมด"
+                  : `งาน${selectedCategory}`}
               </h2>
               <span className="text-gray-500 text-lg">
                 ({filteredJobs.length})
@@ -174,10 +121,7 @@ export default function Home() {
             </div>
             {searchQuery && (
               <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("ทั้งหมด");
-                }}
+                onClick={handleClearFilters}
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 ล้างตัวกรอง
@@ -201,10 +145,7 @@ export default function Home() {
                 ลองค้นหาด้วยคำอื่นหรือเลือกหมวดหมู่อื่น
               </p>
               <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("ทั้งหมด");
-                }}
+                onClick={handleClearFilters}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 ดูงานทั้งหมด
