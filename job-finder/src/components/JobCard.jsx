@@ -41,7 +41,7 @@ function JobCard({ job }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-6 flex-grow pt-2">
+        <div className="flex flex-wrap gap-2 mb-6 flex-grow content-start pt-2">
           {job.tags?.map((tag, i) => (
             <span
               key={i}

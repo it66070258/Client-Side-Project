@@ -35,7 +35,7 @@ export default function Navbar() {
           to="/login"
           className="flex items-center font-medium text-gray-700 hover:text-blue-600 space-x-2 px-2"
         >
-          <LogIn className="w-5 h-5 md:hidden" />
+          <LogIn className="w-5 h-5" />
           <span className="hidden md:inline">เข้าสู่ระบบ</span>
         </Link>
         <Link

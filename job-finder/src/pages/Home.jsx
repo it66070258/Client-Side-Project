@@ -4,32 +4,131 @@ import { Briefcase, TrendingUp, Search } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import JobCard from "../components/JobCard";
 import Footer from "../components/Footer";
-import jobsData from "../data/jobs.json";
-import { CATEGORIES } from "../constants/categories";
-import {
-  buildCategoriesWithCounts,
-  searchJobs,
-  filterJobsByCategory,
-} from "../utils/jobUtils";
+import jsonData from "../data/jobs.json";
+
+const {
+  categories: CATEGORIES,
+  categoryKeywords: CATEGORY_KEYWORDS,
+  categoryIcons: CATEGORY_ICONS,
+  jobs: jobsData,
+} = jsonData;
+
+// ฟังก์ชันสำหรับหาหมวดหมู่งานจาก Tags ของงานนั้นๆ
+function getCategoryFromTags(tags) {
+  if (!tags || tags.length === 0) return CATEGORIES.OTHER;
+
+  const tagString = tags.join(" ");
+
+  // ตรวจสอบ keyword ของแต่ละหมวดหมู่เทียบกับ tags
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some((keyword) => tagString.includes(keyword))) {
+      return category;
+    }
+  }
+
+  return CATEGORIES.OTHER;
+}
+
+// ฟังก์ชันสำหรับเตรียมข้อมูลหมวดหมู่ พร้อมนับจำนวนงานที่มีในแต่ละหมวด
+function buildCategoriesWithCounts(jobs) {
+  const categoryCounts = {
+    [CATEGORIES.ALL]: jobs.length,
+    [CATEGORIES.TECHNOLOGY]: 0,
+    [CATEGORIES.MARKETING]: 0,
+    [CATEGORIES.DESIGN]: 0,
+    [CATEGORIES.FINANCE]: 0,
+    [CATEGORIES.SALES]: 0,
+    [CATEGORIES.MANAGEMENT]: 0,
+    [CATEGORIES.OTHER]: 0,
+  };
+
+  jobs.forEach((job) => {
+    const category = getCategoryFromTags(job.tags);
+    if (categoryCounts[category] !== undefined) {
+      categoryCounts[category]++;
+    }
+  });
+
+  return [
+    {
+      name: CATEGORIES.ALL,
+      count: `${categoryCounts[CATEGORIES.ALL]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.ALL],
+    },
+    {
+      name: CATEGORIES.TECHNOLOGY,
+      count: `${categoryCounts[CATEGORIES.TECHNOLOGY]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.TECHNOLOGY],
+    },
+    {
+      name: CATEGORIES.MARKETING,
+      count: `${categoryCounts[CATEGORIES.MARKETING]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.MARKETING],
+    },
+    {
+      name: CATEGORIES.DESIGN,
+      count: `${categoryCounts[CATEGORIES.DESIGN]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.DESIGN],
+    },
+    {
+      name: CATEGORIES.FINANCE,
+      count: `${categoryCounts[CATEGORIES.FINANCE]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.FINANCE],
+    },
+    {
+      name: CATEGORIES.SALES,
+      count: `${categoryCounts[CATEGORIES.SALES]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.SALES],
+    },
+    {
+      name: CATEGORIES.MANAGEMENT,
+      count: `${categoryCounts[CATEGORIES.MANAGEMENT]} ตำแหน่ง`,
+      icon: CATEGORY_ICONS[CATEGORIES.MANAGEMENT],
+    },
+  ];
+}
+
+// ฟังก์ชันสำหรับค้นหางานจากข้อความ (ค้นจากชื่อตำแหน่ง, บริษัท, สถานที่ หรือ tags)
+function searchJobs(jobs, query) {
+  if (!query || !query.trim()) return jobs;
+
+  const lowerQuery = query.toLowerCase();
+
+  return jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(lowerQuery) ||
+      job.company.toLowerCase().includes(lowerQuery) ||
+      job.location.toLowerCase().includes(lowerQuery) ||
+      job.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)),
+  );
+}
+
+// ฟังก์ชันสำหรับกรองรายการงาน ตามหมวดหมู่ที่ผู้ใช้เลือก
+function filterJobsByCategory(jobs, category) {
+  if (category === CATEGORIES.ALL) return jobs;
+
+  return jobs.filter((job) => {
+    const jobCategory = getCategoryFromTags(job.tags);
+    return jobCategory === category;
+  });
+}
 
 export default function Home() {
+  // State สำหรับเก็บหมวดหมู่ที่กำลังเลือก และข้อความที่ใช้ค้นหา
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES.ALL);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // สร้าง categories พร้อมนับจำนวนจริง (คำนวณครั้งเดียว)
+  // สร้างรายการหมวดหมู่พร้อมนับจำนวนงานจริง (ใช้ useMemo เพื่อไม่ให้คำนวณใหม่ทุกครั้งที่เรนเดอร์)
   const categories = useMemo(() => buildCategoriesWithCounts(jobsData), []);
 
-  // กรองงานตาม category และ search query
+  // กรองข้อมูลงานตามหมวดหมู่และคำค้นหา (อัพเดทเมื่อ selectedCategory หรือ searchQuery เปลี่ยน)
   const filteredJobs = useMemo(() => {
     let filtered = filterJobsByCategory(jobsData, selectedCategory);
     filtered = searchJobs(filtered, searchQuery);
     return filtered;
   }, [selectedCategory, searchQuery]);
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
+  // ฟังก์ชันสำหรับล้างค่าการค้นหาและตัวกรองทั้งหมด
   const handleClearFilters = () => {
     setSearchQuery("");
     setSelectedCategory(CATEGORIES.ALL);
@@ -37,40 +136,21 @@ export default function Home() {
 
   return (
     <div className="w-full">
-      {/* Hero Section */}
+      {/* ส่วนแบนเนอร์หลักและส่วนค้นหางาน */}
       <section className="bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6] text-white py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             ค้นหางานที่ใช่สำหรับคุณ
           </h1>
           <p className="text-lg md:text-xl text-blue-100 mb-10">
-            เชื่อมต่อกับโอกาสใหม่ๆ จากบริษัทชั้นนำกว่า {jobsData.length} ตำแหน่งงาน
+            เชื่อมต่อกับโอกาสใหม่ๆ จากบริษัทชั้นนำกว่า {jobsData.length}{" "}
+            ตำแหน่งงาน
           </p>
-          <SearchBar onSearch={handleSearch} />
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">{jobsData.length}+</div>
-              <div className="text-blue-100 text-sm mt-1">ตำแหน่งงาน</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">500+</div>
-              <div className="text-blue-100 text-sm mt-1">บริษัทชั้นนำ</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">10K+</div>
-              <div className="text-blue-100 text-sm mt-1">ผู้สมัครงาน</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-              <div className="text-3xl font-bold">95%</div>
-              <div className="text-blue-100 text-sm mt-1">ความพึงพอใจ</div>
-            </div>
-          </div>
+          <SearchBar onSearch={setSearchQuery} searchQuery={searchQuery} />
         </div>
       </section>
 
-      {/* Categories Section */}
+      {/* ส่วนแสดงหมวดหมู่งานยอดนิยม */}
       <section className="bg-white py-12 px-4 md:px-8 border-b border-gray-200">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -92,9 +172,13 @@ export default function Home() {
                 }`}
               >
                 <div className="text-3xl mb-2">{cat.icon}</div>
-                <h3 className={`font-bold text-sm ${
-                  selectedCategory === cat.name ? "text-blue-600" : "text-gray-900"
-                }`}>
+                <h3
+                  className={`font-bold text-sm ${
+                    selectedCategory === cat.name
+                      ? "text-blue-600"
+                      : "text-gray-900"
+                  }`}
+                >
                   {cat.name}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">{cat.count}</p>
@@ -104,7 +188,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Jobs Section */}
+      {/* ส่วนแสดงรายการงานตามที่ถูกค้นหาหรือกรองไว้ */}
       <section className="bg-[#f9fafb] py-12 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
@@ -155,7 +239,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Call to Action */}
+      {/* ส่วนเชิญชวนให้สมัครสมาชิก (Call to Action) */}
       <section className="bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6] text-white py-16 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -173,7 +257,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ส่วนท้ายของเว็บไซต์ */}
       <Footer />
     </div>
   );

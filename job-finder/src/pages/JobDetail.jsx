@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import {
   MapPin,
   Briefcase,
@@ -12,19 +12,21 @@ import {
   ArrowLeft,
   CheckCircle2,
 } from "lucide-react";
+import jsonData from "../data/jobs.json";
 
 export default function JobDetail() {
   const { id } = useParams();
 
-  // Dummy job data - in real app, fetch based on id
+  // Find job from complete job data
+  const basicJobInfo = jsonData.jobs.find((j) => j.id.toString() === id);
+
+  if (!basicJobInfo) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Dummy detailed job data - in real app, fetch based on id
   const job = {
-    id: 1,
-    title: "Senior Frontend Developer",
-    company: "Tech Innovation Co.",
-    location: "กรุงเทพมหานคร",
-    type: "Full-time",
-    postedAt: "2 วันที่แล้ว",
-    salary: "60,000 - 80,000 บาท",
+    ...basicJobInfo,
     experience: "3-5 ปี",
     education: "ปริญญาตรี วิทยาการคอมพิวเตอร์หรือสาขาที่เกี่ยวข้อง",
     positions: "2 ตำแหน่ง",
