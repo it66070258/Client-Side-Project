@@ -35,11 +35,9 @@ export default function Bookmark() {
 
   const handleClearAll = () => {
     if (!userKey) return;
-    if (window.confirm("คุณต้องการลบงานที่บันทึกไว้ทั้งหมดใช่หรือไม่?")) {
-      setBookmarkedJobs([]);
-      localStorage.removeItem(userKey);
-      window.dispatchEvent(new Event("storage"));
-    }
+    setBookmarkedJobs([]);
+    localStorage.removeItem(userKey);
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -131,35 +129,6 @@ export default function Bookmark() {
               <span>ค้นหางาน</span>
               <ExternalLink className="w-4 h-4" />
             </Link>
-          </div>
-        )}
-
-        {/* Tips */}
-        {bookmarkedJobs.length > 0 && (
-          <div className="mt-12 bg-blue-50 rounded-2xl p-8 border border-blue-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-3">
-              💡 เคล็ดลับ
-            </h3>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                <span>
-                  บันทึกงานที่คุณสนใจไว้เพื่อง่ายต่อการเปรียบเทียบและตัดสินใจ
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                <span>
-                  ตรวจสอบงานที่บันทึกไว้เป็นประจำ เพราะบางตำแหน่งอาจปิดรับสมัคร
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                <span>
-                  กดปุ่มบันทึกที่มุมบนขวาของการ์ดงานเพื่อเพิ่มในรายการ
-                </span>
-              </li>
-            </ul>
           </div>
         )}
       </div>

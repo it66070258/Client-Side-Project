@@ -12,6 +12,7 @@ import {
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   // โหลด user + ฟังการเปลี่ยนแปลง
@@ -71,32 +72,42 @@ export default function Navbar() {
         >
           <Bookmark className="w-5 h-5" /> <span>งานที่บันทึก</span>
         </Link>
-        <Link
-          to="/profile"
-          className={`flex items-center space-x-2 ${
-            isActive("/profile")
-              ? "text-blue-600"
-              : "text-gray-600 hover:text-blue-600"
-          }`}
-        >
-          <User className="w-5 h-5" /> <span>โปรไฟล์</span>
-        </Link>
       </div>
 
       <div className="flex items-center space-x-4">
         {user ? (
-          <>
-            <span className="font-medium text-gray-700 hidden md:inline">
-              👋 {user.fullName}
-            </span>
+          <div className="relative">
             <button
-              onClick={handleLogout}
-              className="flex items-center text-red-500 hover:text-red-600 space-x-2"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-2 font-medium text-gray-700 hover:text-blue-600 focus:outline-none"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="hidden md:inline">ออกจากระบบ</span>
+              <span className="hidden md:inline">{user.fullName}</span>
+              <User className="w-5 h-5" />
             </button>
-          </>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50">
+                <Link
+                  to="/profile"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 space-x-2"
+                >
+                  <User className="w-4 h-4" />
+                  <span>โปรไฟล์</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 space-x-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>ออกจากระบบ</span>
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <Link

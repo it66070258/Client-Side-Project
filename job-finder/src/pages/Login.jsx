@@ -5,10 +5,12 @@ import { LogIn, Mail, Lock } from "lucide-react";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
 
     // ดึง users จาก localStorage
     const users = JSON.parse(localStorage.getItem("users")) || [];
@@ -22,12 +24,11 @@ export default function Login() {
       // เก็บสถานะ login
       localStorage.setItem("currentUser", JSON.stringify(user));
       window.dispatchEvent(new Event("storage"));
-      alert("เข้าสู่ระบบสำเร็จ!");
 
       // ไปหน้า home
       navigate("/");
     } else {
-      alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
     }
   };
 
@@ -85,6 +86,12 @@ export default function Login() {
             </div>
           </div>
 
+          {error && (
+            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg text-center border border-red-200">
+              {error}
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center">
               <input
@@ -119,14 +126,6 @@ export default function Login() {
               สมัครสมาชิก
             </Link>
           </p>
-        </div>
-
-        <div className="mt-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

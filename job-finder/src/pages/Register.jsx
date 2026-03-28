@@ -10,6 +10,7 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,9 +22,10 @@ export default function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      alert("รหัสผ่านไม่ตรงกัน");
+      setError("รหัสผ่านไม่ตรงกัน");
       return;
     }
 
@@ -33,7 +35,7 @@ export default function Register() {
     // เช็ค email ซ้ำ
     const emailExists = users.find((u) => u.email === formData.email);
     if (emailExists) {
-      alert("อีเมลนี้ถูกใช้งานแล้ว");
+      setError("อีเมลนี้ถูกใช้งานแล้ว");
       return;
     }
 
@@ -53,7 +55,6 @@ export default function Register() {
 
     localStorage.setItem("currentUser", JSON.stringify(newUser));
     window.dispatchEvent(new Event("storage"));
-    alert("สมัครสมาชิกสำเร็จ!");
 
     // ไปหน้า login
     navigate("/");
@@ -182,6 +183,12 @@ export default function Register() {
               />
             </div>
           </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg text-center border border-red-200">
+              {error}
+            </div>
+          )}
 
           <div className="flex items-start">
             <input
