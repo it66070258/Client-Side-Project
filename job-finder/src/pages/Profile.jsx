@@ -16,14 +16,14 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [profile, setProfile] = useState({
-    fullName: "ผู้ใช้งานทั่วไป",
+    fullName: "",
     email: "",
-    phone: "081-234-5678",
-    location: "กำหนดสถานที่",
-    position: "ตำแหน่งที่สนใจ",
-    experience: "1 ปี",
-    bio: "อธิบายเกี่ยวกับตัวคุณ...",
-    skills: ["React", "JavaScript", "HTML/CSS"],
+    phone: "",
+    location: "",
+    position: "",
+    experience: "",
+    bio: "",
+    skills: [],
     resume: null,
   });
 
@@ -43,10 +43,15 @@ export default function Profile() {
       } else {
         // ดึงแค่ค่าตั้งต้นจากตอนสมัคร/login ถ้ายังไม่ได้สร้าง profile ลึกซึ้ง
         const initialProfile = {
-          ...profile,
           fullName: currentUser.fullName || currentUser.email.split("@")[0],
           email: currentUser.email,
-          phone: currentUser.phone || profile.phone,
+          phone: currentUser.phone || "",
+          location: "",
+          position: "",
+          experience: "",
+          bio: "",
+          skills: [],
+          resume: null,
         };
         setProfile(initialProfile);
         setEditedProfile(initialProfile);
@@ -187,7 +192,8 @@ export default function Profile() {
                   <input
                     type="text"
                     name="fullName"
-                    value={editedProfile.fullName}
+                    value={editedProfile.fullName || ""}
+                    placeholder="ใส่ชื่อ-นามสกุลของคุณ"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -199,7 +205,8 @@ export default function Profile() {
                   <input
                     type="email"
                     name="email"
-                    value={editedProfile.email}
+                    value={editedProfile.email || ""}
+                    placeholder="example@email.com"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -211,7 +218,8 @@ export default function Profile() {
                   <input
                     type="tel"
                     name="phone"
-                    value={editedProfile.phone}
+                    value={editedProfile.phone || ""}
+                    placeholder="08X-XXX-XXXX"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -223,7 +231,8 @@ export default function Profile() {
                   <input
                     type="text"
                     name="location"
-                    placeholder={editedProfile.location}
+                    value={editedProfile.location || ""}
+                    placeholder="เช่น กรุงเทพมหานคร"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -235,7 +244,8 @@ export default function Profile() {
                   <input
                     type="text"
                     name="position"
-                    placeholder={editedProfile.position}
+                    value={editedProfile.position || ""}
+                    placeholder="เช่น Frontend Developer"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -247,7 +257,8 @@ export default function Profile() {
                   <input
                     type="text"
                     name="experience"
-                    placeholder={editedProfile.experience}
+                    value={editedProfile.experience || ""}
+                    placeholder="เช่น 1 ปี, 3 ปี"
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -259,7 +270,8 @@ export default function Profile() {
                 </label>
                 <textarea
                   name="bio"
-                  placeholder={editedProfile.bio}
+                  value={editedProfile.bio || ""}
+                  placeholder="อธิบายเกี่ยวกับตัวคุณ..."
                   onChange={handleChange}
                   rows="4"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
@@ -371,7 +383,7 @@ export default function Profile() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <h2 className="text-xl font-bold text-gray-900">เกี่ยวกับ</h2>
                 </div>
-                {profile.bio && profile.bio !== "อธิบายเกี่ยวกับตัวคุณ..." ? (
+                {profile.bio && profile.bio.trim() !== "" ? (
                   <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
                 ) : (
                   <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
@@ -390,7 +402,7 @@ export default function Profile() {
                     ประสบการณ์ทำงาน
                   </h2>
                 </div>
-                {profile.experience && profile.experience !== "1 ปี" ? (
+                {profile.experience && profile.experience.trim() !== "" ? (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-gray-700 font-medium">
                       {profile.experience}
