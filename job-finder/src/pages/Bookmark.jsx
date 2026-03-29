@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { Bookmark as BookmarkIcon, Trash2, ExternalLink } from "lucide-react";
 import JobCard from "../components/JobCard";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
+// คอมโพเนนต์สำหรับแสดงรายการงานที่ผู้ใช้บันทึกไว้
 export default function Bookmark() {
-  const navigate = useNavigate();
+  // ดึงข้อมูลผู้ใช้ปัจจุบันจาก localStorage
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  // สร้าง key สำหรับอ้างอิงข้อมูลการบันทึกงานของผู้ใช้แต่ละคน
   const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
 
+  // สถานะสำหรับเก็บรายการงานที่ถูกบันทึก
   const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
 
   useEffect(() => {
@@ -15,6 +19,8 @@ export default function Bookmark() {
       setBookmarkedJobs([]);
       return;
     }
+
+    // ฟังก์ชันสำหรับโหลดข้อมูลงานที่บันทึกไว้จาก localStorage
     const loadBookmarks = () => {
       const data = JSON.parse(localStorage.getItem(userKey)) || [];
       setBookmarkedJobs(data);
@@ -25,6 +31,7 @@ export default function Bookmark() {
     return () => window.removeEventListener("storage", loadBookmarks);
   }, [userKey]);
 
+  // ฟังก์ชันสำหรับลบงานที่บันทึกไว้ออกทีละรายการ
   const handleRemoveBookmark = (jobId) => {
     if (!userKey) return;
     const updated = bookmarkedJobs.filter((job) => job.id !== jobId);
@@ -33,6 +40,7 @@ export default function Bookmark() {
     window.dispatchEvent(new Event("storage"));
   };
 
+  // ฟังก์ชันสำหรับลบงานที่บันทึกไว้ทั้งหมด
   const handleClearAll = () => {
     if (!userKey) return;
     setBookmarkedJobs([]);
@@ -43,7 +51,7 @@ export default function Bookmark() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {/* ส่วนหัวของหน้าและปุ่มลบทั้งหมด */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
@@ -70,14 +78,14 @@ export default function Bookmark() {
           )}
         </div>
 
-        {/* Job List */}
+        {/* ส่วนแสดงรายการงานที่บันทึกไว้ */}
         {bookmarkedJobs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {bookmarkedJobs.map((job) => (
               <div key={job.id} className="relative group">
                 <JobCard job={job} />
 
-                {/* Hover actions */}
+                {/* ปุ่มลบและฟังก์ชันเมื่อนำเมาส์ไปชี้ */}
                 <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => handleRemoveBookmark(job.id)}
@@ -108,7 +116,7 @@ export default function Bookmark() {
             ))}
           </div>
         ) : (
-          // Empty State
+          {/* กรณีที่ไม่มีข้อมูลงานบันทึกไว้ (สถานะว่างเปล่า) */}
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
               <BookmarkIcon className="w-12 h-12 text-gray-400" />

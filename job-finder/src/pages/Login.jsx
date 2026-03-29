@@ -2,12 +2,19 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogIn, Mail, Lock } from "lucide-react";
 
+// คอมโพเนนต์สำหรับหน้าเข้าสู่ระบบ
 export default function Login() {
+  // สถานะสำหรับเก็บข้อมูลอีเมล
   const [email, setEmail] = useState("");
+  // สถานะสำหรับเก็บข้อมูลรหัสผ่าน
   const [password, setPassword] = useState("");
+  // สถานะสำหรับเก็บข้อความแจ้งเตือนข้อผิดพลาด
   const [error, setError] = useState("");
+
+  // ฟังก์ชันสำหรับเปลี่ยนหน้า (นำทาง)
   const navigate = useNavigate();
 
+  // ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้กดปุ่มเข้าสู่ระบบ
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
@@ -35,6 +42,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        {/* ส่วนหัวของรูปแบบฟอร์มเข้าสู่ระบบ */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-white" />
@@ -43,6 +51,7 @@ export default function Login() {
           <p className="text-gray-600">ยินดีต้อนรับกลับสู่ JobPortal</p>
         </div>
 
+        {/* กล่องแบบฟอร์มให้กรอกอีเมลและรหัสผ่าน */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
@@ -86,12 +95,14 @@ export default function Login() {
             </div>
           </div>
 
+          {/* ตรวจสอบและแสดงข้อความสีแดงเมื่อป้อนรหัสผิด */}
           {error && (
             <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg text-center border border-red-200">
               {error}
             </div>
           )}
 
+          {/* ตัวเลือกจดจำเข้าสู่ระบบอัตโนมัติและลืมรหัสผ่าน */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center">
               <input
@@ -116,6 +127,7 @@ export default function Login() {
           </button>
         </form>
 
+        {/* ลิงก์นำทางไปยังหน้าสมัครสมาชิกสำหรับผู้ไม่มีบัญชี */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             ยังไม่มีบัญชี?{" "}

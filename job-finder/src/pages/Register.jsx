@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, Phone } from "lucide-react";
 
+// คอมโพเนนต์สำหรับหน้าสมัครสมาชิก
 export default function Register() {
+  // สถานะสำหรับเก็บข้อมูลผู้ใช้งานจากแบบฟอร์ม
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -10,9 +12,14 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+
+  // สถานะสำหรับเก็บข้อความแจ้งเตือนข้อผิดพลาด
   const [error, setError] = useState("");
+
+  // ฟังก์ชันสำหรับเปลี่ยนหน้า (นำทาง)
   const navigate = useNavigate();
 
+  // ฟังก์ชันสำหรับอัปเดตข้อมูลใน formData เมื่อผู้ใช้พิมพ์ข้อมูล
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -20,6 +27,7 @@ export default function Register() {
     });
   };
 
+  // ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้กดปุ่มนำส่งข้อมูลฟอร์ม
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
@@ -63,6 +71,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        {/* ส่วนหัวของหน้าสมัครสมาชิก */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
             <UserPlus className="w-8 h-8 text-white" />
@@ -73,6 +82,7 @@ export default function Register() {
           </p>
         </div>
 
+        {/* ฟอร์มกรอกข้อมูลสำหรับการสมัครสมาชิก */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label
@@ -184,12 +194,14 @@ export default function Register() {
             </div>
           </div>
 
+          {/* แสดงข้อความแจ้งเตือนข้อผิดพลาด (ถ้ามี) */}
           {error && (
             <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg text-center border border-red-200">
               {error}
             </div>
           )}
 
+          {/* ช่องกดยอมรับข้อตกลงและเงื่อนไขการใช้งาน */}
           <div className="flex items-start">
             <input
               type="checkbox"
@@ -216,6 +228,7 @@ export default function Register() {
           </button>
         </form>
 
+        {/* ลิงก์นำทางไปหน้าเข้าสู่ระบบ กรณีที่ผู้ใช้มีบัญชีอยู่แล้ว */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             มีบัญชีอยู่แล้ว?{" "}

@@ -18,7 +18,7 @@ export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Find job from complete job data
+  // ค้นหาข้อมูลงานที่ตรงกับ id ใน URL จากข้อมูลงานทั้งหมด
   const basicJobInfo = jsonData.jobs.find((j) => j.id.toString() === id);
   const extraJobInfo = jobDetailData[id];
 
@@ -65,6 +65,7 @@ export default function JobDetail() {
     window.dispatchEvent(new Event("storage"));
   };
 
+  // ตรวจสอบว่าสถานที่ทำงานเป็นระบบ Remote หรือไม่ เพื่อประมวลผลคำค้นหาพิกัดแผนที่
   const isRemoteLocation =
     typeof job.location === "string" &&
     job.location.trim().toLowerCase() === "remote";
@@ -77,12 +78,12 @@ export default function JobDetail() {
     <div className="min-h-screen bg-gray-50 pb-12">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
+          {/* พื้นที่แสดงรูปภาพรวมและรายละเอียดของงาน (ขนาด 2 ใน 3 ส่วน) */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Job Header */}
+            {/* ส่วนหัวของรายละเอียดงานและข้อมูลทั่วไป */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
               <div className="flex flex-col md:flex-row items-start md:space-x-6">
-                {/* Icon */}
+                {/* ไอคอนบริษัทหรืองาน */}
                 <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-4xl mb-4 md:mb-0 shrink-0 border border-gray-100 shadow-sm">
                   {job.icon}
                 </div>
@@ -149,7 +150,7 @@ export default function JobDetail() {
               </div>
             </div>
 
-            {/* Job Description */}
+            {/* ส่วนแสดงคำอธิบายรายละเอียดงานทั้งหมด */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 รายละเอียดงาน
@@ -159,7 +160,7 @@ export default function JobDetail() {
               </p>
             </div>
 
-            {/* Responsibilities */}
+            {/* ส่วนของรายการหน้าที่และความรับผิดชอบ */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 หน้าที่ความรับผิดชอบ
@@ -176,7 +177,7 @@ export default function JobDetail() {
               </ul>
             </div>
 
-            {/* Requirements */}
+            {/* ส่วนระบุคุณสมบัติของผู้สมัครที่บริษัทต้องการ */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 คุณสมบัติที่ต้องการ
@@ -193,7 +194,7 @@ export default function JobDetail() {
               </ul>
             </div>
 
-            {/* Benefits */}
+            {/* ส่วนระบุสวัสดิการและผลประโยชน์ของตำแหน่งงานนี้ */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 สวัสดิการและผลประโยชน์
@@ -210,7 +211,7 @@ export default function JobDetail() {
               </ul>
             </div>
 
-            {/* Location Map Section */}
+            {/* ส่วนจัดแสดงแผนที่สถานที่ตั้งบริษัท */}
             <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8 flex flex-col pt-8">
               <div className="flex items-center space-x-2 mb-4">
                 <MapPin className="w-6 h-6 text-red-500" />
@@ -220,7 +221,7 @@ export default function JobDetail() {
               </div>
               <p className="text-gray-600 mb-4">{job.location}</p>
 
-              {/* Google Maps iFrame */}
+              {/* ตัวแสดงผลแผนที่แบบจำลองลงหน้าเว็บผ่าน Google Maps (iFrame) */}
               <div className="w-full h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden border border-gray-200">
                 <iframe
                   title="Company Location Map"
@@ -236,9 +237,9 @@ export default function JobDetail() {
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* แถบด้านข้างแสดงข้อมูลเสริมอื่นๆ (Sidebar) */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Company Info */}
+            {/* ข้อมูลจำเพาะเบื้องต้นเกี่ยวกับบริษัทและองค์กร */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="bg-blue-50 p-2 rounded-lg text-blue-600">
@@ -286,7 +287,7 @@ export default function JobDetail() {
               </div>
             </div>
 
-            {/* Tips Container */}
+            {/* กล่องรวมเคล็ดลับและการเตรียมตัวสำหรับการสมัครงาน */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
                 เคล็ดลับการสมัครงาน
