@@ -1,4 +1,4 @@
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   MapPin,
@@ -16,6 +16,7 @@ import jobDetailData from "../data/jobdetail.json";
 
 export default function JobDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   // Find job from complete job data
   const basicJobInfo = jsonData.jobs.find((j) => j.id.toString() === id);
@@ -63,6 +64,14 @@ export default function JobDetail() {
     localStorage.setItem(userKey, JSON.stringify(updated));
     window.dispatchEvent(new Event("storage"));
   };
+
+  const isRemoteLocation =
+    typeof job.location === "string" &&
+    job.location.trim().toLowerCase() === "remote";
+  const mapQuery = isRemoteLocation ? "ประเทศไทย" : `${job.location} ประเทศไทย`;
+  const mapEmbedSrc = `https://www.google.com/maps?q=${encodeURIComponent(
+    mapQuery,
+  )}&output=embed&hl=th`;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
@@ -199,6 +208,31 @@ export default function JobDetail() {
                   </li>
                 ))}
               </ul>
+            </div>
+
+            {/* Location Map Section */}
+            <div className="bg-white rounded-2xl shadow-sm p-6 md:p-8 flex flex-col pt-8">
+              <div className="flex items-center space-x-2 mb-4">
+                <MapPin className="w-6 h-6 text-red-500" />
+                <h2 className="text-xl font-bold text-gray-900">
+                  สถานที่ตั้งบริษัท
+                </h2>
+              </div>
+              <p className="text-gray-600 mb-4">{job.location}</p>
+
+              {/* Google Maps iFrame */}
+              <div className="w-full h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden border border-gray-200">
+                <iframe
+                  title="Company Location Map"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={mapEmbedSrc}
+                ></iframe>
+              </div>
             </div>
           </div>
 
