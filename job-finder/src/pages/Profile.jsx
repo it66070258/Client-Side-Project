@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -8,22 +8,51 @@ import {
   FileText,
   Camera,
   Save,
+  X,
+  Plus,
 } from "lucide-react";
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
+  const [newSkill, setNewSkill] = useState("");
   const [profile, setProfile] = useState({
-    fullName: "สมชาย ใจดี",
-    email: "somchai@email.com",
+    fullName: "ผู้ใช้งานทั่วไป",
+    email: "",
     phone: "081-234-5678",
-    location: "กรุงเทพมหานคร",
-    position: "Frontend Developer",
-    experience: "3 ปี",
-    bio: "Frontend Developer ที่มีประสบการณ์ด้าน React และ TypeScript กำลังมองหางานใหม่ที่ท้าทายและมีโอกาสเติบโต",
-    skills: ["React", "TypeScript", "Tailwind CSS", "Node.js", "Git"],
+    location: "กำหนดสถานที่",
+    position: "ตำแหน่งที่สนใจ",
+    experience: "1 ปี",
+    bio: "อธิบายเกี่ยวกับตัวคุณ...",
+    skills: ["React", "JavaScript", "HTML/CSS"],
+    resume: null,
   });
 
   const [editedProfile, setEditedProfile] = useState(profile);
+
+  // ดึงข้อมูล currentUser หรือ profile ที่เคยเซฟไว้
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      // ลองดึง profile เฉพาะคน (ใช้ email เป็น key อ้างอิง) หรือดึงข้อมูลปกติ
+      const profileKey = `profile_${currentUser.email}`;
+      const savedProfile = JSON.parse(localStorage.getItem(profileKey));
+
+      if (savedProfile) {
+        setProfile(savedProfile);
+        setEditedProfile(savedProfile);
+      } else {
+        // ดึงแค่ค่าตั้งต้นจากตอนสมัคร/login ถ้ายังไม่ได้สร้าง profile ลึกซึ้ง
+        const initialProfile = {
+          ...profile,
+          fullName: currentUser.fullName || currentUser.email.split("@")[0],
+          email: currentUser.email,
+          phone: currentUser.phone || profile.phone,
+        };
+        setProfile(initialProfile);
+        setEditedProfile(initialProfile);
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     setEditedProfile({
@@ -32,7 +61,62 @@ export default function Profile() {
     });
   };
 
+  const handleAddSkill = () => {
+    if (
+      newSkill.trim() &&
+      !(editedProfile.skills || []).includes(newSkill.trim())
+    ) {
+      setEditedProfile({
+        ...editedProfile,
+        skills: [...(editedProfile.skills || []), newSkill.trim()],
+      });
+      setNewSkill("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove) => {
+    setEditedProfile({
+      ...editedProfile,
+      skills: (editedProfile.skills || []).filter(
+        (skill) => skill !== skillToRemove,
+      ),
+    });
+  };
+
+  const handleResumeUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setEditedProfile({
+        ...editedProfile,
+        resume: file.name,
+      });
+    }
+  };
+
   const handleSave = () => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      const profileKey = `profile_${currentUser.email}`;
+      localStorage.setItem(profileKey, JSON.stringify(editedProfile));
+
+      // อัปเดต currentUser ให้มีข้อมูลชื่อใหม่เผื่อไว้ใช้กับ Navbar ด้วย
+      const updatedUser = {
+        ...currentUser,
+        fullName: editedProfile.fullName,
+        phone: editedProfile.phone,
+      };
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+      // Update Users array as well
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const userIndex = users.findIndex((u) => u.email === updatedUser.email);
+      if (userIndex !== -1) {
+        users[userIndex] = updatedUser;
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+      window.dispatchEvent(new Event("storage"));
+    }
+
     setProfile(editedProfile);
     setIsEditing(false);
   };
@@ -80,12 +164,14 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition"
-            >
-              {isEditing ? "ยกเลิก" : "แก้ไขโปรไฟล์"}
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition"
+              >
+                แก้ไขโปรไฟล์
+              </button>
+            )}
           </div>
         </div>
 
@@ -137,7 +223,7 @@ export default function Profile() {
                   <input
                     type="text"
                     name="location"
-                    value={editedProfile.location}
+                    placeholder={editedProfile.location}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -149,7 +235,7 @@ export default function Profile() {
                   <input
                     type="text"
                     name="position"
-                    value={editedProfile.position}
+                    placeholder={editedProfile.position}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -161,7 +247,7 @@ export default function Profile() {
                   <input
                     type="text"
                     name="experience"
-                    value={editedProfile.experience}
+                    placeholder={editedProfile.experience}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -173,12 +259,94 @@ export default function Profile() {
                 </label>
                 <textarea
                   name="bio"
-                  value={editedProfile.bio}
+                  placeholder={editedProfile.bio}
                   onChange={handleChange}
                   rows="4"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ทักษะ
+                </label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {(editedProfile.skills || []).map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="flex items-center space-x-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium"
+                    >
+                      <span>{skill}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="p-1 hover:bg-blue-200 rounded-full transition"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      (e.preventDefault(), handleAddSkill())
+                    }
+                    placeholder="เพิ่มทักษะใหม่..."
+                    className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSkill}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center space-x-1 font-medium"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>เพิ่ม</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  อัปโหลดเรซูเม่ (PDF, DOCX)
+                </label>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="file"
+                    id="resume-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleResumeUpload}
+                  />
+                  <label
+                    htmlFor="resume-upload"
+                    className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center space-x-2 transition"
+                  >
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-700 font-medium">เลือกไฟล์</span>
+                  </label>
+                  <span className="text-sm text-gray-500 truncate max-w-xs">
+                    {editedProfile.resume
+                      ? editedProfile.resume
+                      : "ยังไม่ได้เลือกไฟล์"}
+                  </span>
+                  {editedProfile.resume && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditedProfile({ ...editedProfile, resume: null })
+                      }
+                      className="text-red-500 hover:text-red-600 text-sm font-medium"
+                    >
+                      ลบไฟล์
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="flex justify-end space-x-4 pt-4 border-t">
                 <button
                   onClick={handleCancel}
@@ -203,7 +371,15 @@ export default function Profile() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <h2 className="text-xl font-bold text-gray-900">เกี่ยวกับ</h2>
                 </div>
-                <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
+                {profile.bio && profile.bio !== "อธิบายเกี่ยวกับตัวคุณ..." ? (
+                  <p className="text-gray-600 leading-relaxed">{profile.bio}</p>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+                    <p className="text-gray-500 italic">
+                      ยังไม่มีข้อมูลแนะนำตัว
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Experience Section */}
@@ -214,11 +390,19 @@ export default function Profile() {
                     ประสบการณ์ทำงาน
                   </h2>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-gray-700 font-medium">
-                    {profile.experience}
-                  </p>
-                </div>
+                {profile.experience && profile.experience !== "1 ปี" ? (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-gray-700 font-medium">
+                      {profile.experience}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+                    <p className="text-gray-500 italic">
+                      ยังไม่ได้ระบุประสบการณ์ทำงาน
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Skills Section */}
@@ -227,16 +411,24 @@ export default function Profile() {
                   <User className="w-5 h-5 text-blue-600" />
                   <h2 className="text-xl font-bold text-gray-900">ทักษะ</h2>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  {profile.skills.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                {profile.skills && profile.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {profile.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+                    <p className="text-gray-500 italic">
+                      ยังไม่มีทักษะที่ระบุไว้
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Resume Section */}
@@ -245,12 +437,22 @@ export default function Profile() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <h2 className="text-xl font-bold text-gray-900">เรซูเม่</h2>
                 </div>
-                <button className="flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition w-full justify-center">
-                  <FileText className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-600 font-medium">
-                    อัปโหลดเรซูเม่
-                  </span>
-                </button>
+                {profile.resume ? (
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                    <div className="flex items-center space-x-3">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                      <span className="text-gray-700 font-medium">
+                        {profile.resume}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center px-6 py-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex-col">
+                    <span className="text-gray-500 font-medium mb-2">
+                      ยังไม่มีเรซูเม่
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
