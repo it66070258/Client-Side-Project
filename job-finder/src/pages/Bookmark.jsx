@@ -38,7 +38,7 @@ export default function Bookmark() {
     const updated = bookmarkedJobs.filter((job) => job.id !== jobId);
     // ทำการอัปเดต state ตัวใหม่
     setBookmarkedJobs(updated);
-    // เขียนข้อมูลชุดใหม่ทับใน localStorage 
+    // เขียนข้อมูลชุดใหม่ทับใน localStorage
     localStorage.setItem(userKey, JSON.stringify(updated));
     // ส่งอีเวนต์ storage แจ้งเตือนเพื่อให้ component เช่น Navbar อัปเดตยอดคงเหลือ
     window.dispatchEvent(new Event("storage"));
@@ -49,7 +49,7 @@ export default function Bookmark() {
     if (!userKey) return;
     // เคลียร์ state ให้ว่างเปล่า
     setBookmarkedJobs([]);
-    // ลบ Key ที่ผูกกับผู้ใช้นี้ออกจาก localStorage 
+    // ลบ Key ที่ผูกกับผู้ใช้นี้ออกจาก localStorage
     localStorage.removeItem(userKey);
     // ส่งอีเวนต์ storage เพื่อสั่งให้อัปเดต UI ทันที
     window.dispatchEvent(new Event("storage"));
