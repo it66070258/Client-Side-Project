@@ -54,7 +54,7 @@ export default function Navbar() {
         className="flex items-center space-x-2 text-blue-600 font-bold text-2xl"
       >
         <Briefcase className="w-8 h-8" />
-        <span>JobPortal</span>
+        <span>JobFinder</span>
       </Link>
 
       {/* เมนูนำทางตรงกลาง (แสดงเฉพาะจอขนาดกลางขึ้นไป) */}
