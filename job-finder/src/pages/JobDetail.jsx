@@ -15,35 +15,44 @@ import jsonData from "../data/jobs.json";
 import jobDetailData from "../data/jobdetail.json";
 
 export default function JobDetail() {
+  // ดึงค่าพารามิเตอร์ id ของงานจาก URL
   const { id } = useParams();
+  // เรียกใช้งาน hook สำหรับการเปลี่ยนเส้นทางหน้าเว็บ (Navigate)
   const navigate = useNavigate();
 
-  // ค้นหาข้อมูลงานที่ตรงกับ id ใน URL จากข้อมูลงานทั้งหมด
+  // ค้นหาข้อมูลงานพื้นฐานที่ตรงกับ id ใน URL จากข้อมูลงานทั้งหมด
   const basicJobInfo = jsonData.jobs.find((j) => j.id.toString() === id);
+  // ดึงข้อมูลรายละเอียดเชิงลึกของตำแหน่งงานจากไฟล์ jobdetail.json
   const extraJobInfo = jobDetailData[id];
 
   if (!basicJobInfo || !extraJobInfo) {
     return <Navigate to="/" replace />;
   }
 
-  // รวมข้อมูลหลักและข้อมูลรายละเอียดเพิ่มเติม
+  // รวมข้อมูลหลักและข้อมูลรายละเอียดเพิ่มเติมเข้าไว้ในออบเจ็กต์เดียวกัน
   const job = {
     ...basicJobInfo,
     ...extraJobInfo,
     description: extraJobInfo.fullDescription || basicJobInfo.description,
   };
 
+  // ดึงข้อมูลผู้ใช้งานปัจจุบันที่ลงชื่อเข้าใช้จาก localStorage
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  // สร้าง Key เฉพาะสำหรับผู้ใช้แต่ละคนเพื่อใช้อ้างอิงและบันทึกข้อมูลบุ๊กมาร์ก
   const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
+  // State สำหรับจัดเก็บรายการงานที่ถูกบันทึก (Bookmark) ของผู้ใช้
   const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
 
+  // ดึงข้อมูลงานที่บันทึกไว้เริ่มต้นจาก localStorage เมื่อ component เริ่มทำงานหรือเมื่อข้อมูลผู้ใช้เปลี่ยน
   useEffect(() => {
     if (!userKey) return;
     const data = JSON.parse(localStorage.getItem(userKey)) || [];
     setBookmarkedJobs(data);
   }, [userKey]);
 
+  // ฟังก์ชันสำหรับจัดการการกดบันทึกหรือยกเลิกการบันทึกงาน
   const handleToggleBookmark = () => {
+    // ตรวจสอบว่าผู้ใช้คลิกบันทึกงานโดยที่ยังไม่ได้เข้าสู่ระบบหรือไม่
     if (!currentUser) {
       alert("กรุณาเข้าสู่ระบบเพื่อบันทึกงาน");
       navigate("/login");
@@ -51,17 +60,22 @@ export default function JobDetail() {
     }
 
     let updated;
+    // หากงานนี้มีอยู่ในรายการบันทึกแล้ว จะทำการลบออกจากรายการ
     if (bookmarkedJobs.find((j) => j.id === job.id)) {
       updated = bookmarkedJobs.filter((j) => j.id !== job.id);
     } else {
+      // หากยังไม่ได้บันทึก จะเพิ่มงานนี้เข้าไปพร้อมบันทึกวันที่ปัจจุบัน
       updated = [
         ...bookmarkedJobs,
         { ...job, savedAt: new Date().toLocaleDateString() },
       ];
     }
 
+    // อัปเดตข้อมูลไปยัง State
     setBookmarkedJobs(updated);
+    // บันทึกข้อมูลงานที่อัปเดตแล้วกลับลงไปใน localStorage
     localStorage.setItem(userKey, JSON.stringify(updated));
+    // ส่งอีเวนต์ storage เพื่อแจ้งเตือน component อื่นๆ ให้อัปเดตจำนวนบุ๊กมาร์ก (เช่น Navbar)
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -69,7 +83,9 @@ export default function JobDetail() {
   const isRemoteLocation =
     typeof job.location === "string" &&
     job.location.trim().toLowerCase() === "remote";
+  // กำหนดรูปแบบคำค้นหาสำหรับ Google Maps (หากเป็น Remote ให้ใช้แค่ "ประเทศไทย")
   const mapQuery = isRemoteLocation ? "ประเทศไทย" : `${job.location} ประเทศไทย`;
+  // สร้าง URL สำหรับแทรกแผนที่ Google Maps แบบฝัง (iframe) รองรับการแสดงผลภาษาไทย
   const mapEmbedSrc = `https://www.google.com/maps?q=${encodeURIComponent(
     mapQuery,
   )}&output=embed&hl=th`;

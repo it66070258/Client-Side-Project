@@ -3,15 +3,15 @@ import { Bookmark as BookmarkIcon, Trash2, ExternalLink } from "lucide-react";
 import JobCard from "../components/JobCard";
 import { Link } from "react-router-dom";
 
-// คอมโพเนนต์สำหรับแสดงรายการงานที่ผู้ใช้บันทึกไว้
+// คอมโพเนนต์สำหรับแสดงรายการงานที่ผู้ใช้บุ๊กมาร์ก (บันทึก) ไว้
 export default function Bookmark() {
-  // ดึงข้อมูลผู้ใช้ปัจจุบันจาก localStorage
+  // ดึงข้อมูลผู้ใช้ปัจจุบันที่ระบบทำการล็อกอินไว้จาก localStorage
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-  // สร้าง key สำหรับอ้างอิงข้อมูลการบันทึกงานของผู้ใช้แต่ละคน
+  // สร้าง Key เฉพาะสำหรับผู้ใช้งานแต่ละคน เพื่อใช้เก็บตำแหน่งงานที่บุ๊กมาร์กไว้
   const userKey = currentUser ? `bookmarkedJobs_${currentUser.email}` : null;
 
-  // สถานะสำหรับเก็บรายการงานที่ถูกบันทึก
+  // State สำหรับเก็บรายการข้อมูลงานทั้งหมดที่ถูกผู้ใช้บันทึก
   const [bookmarkedJobs, setBookmarkedJobs] = useState([]);
 
   useEffect(() => {
@@ -31,20 +31,27 @@ export default function Bookmark() {
     return () => window.removeEventListener("storage", loadBookmarks);
   }, [userKey]);
 
-  // ฟังก์ชันสำหรับลบงานที่บันทึกไว้ออกทีละรายการ
+  // ฟังก์ชันสำหรับลบงานที่ถูกบันทึกไว้ออกไปทีละ 1 รายการ
   const handleRemoveBookmark = (jobId) => {
     if (!userKey) return;
+    // กรองข้อมูลงานตัวที่ไม่ต้องการลบเพื่อสร้าง array ใหม่
     const updated = bookmarkedJobs.filter((job) => job.id !== jobId);
+    // ทำการอัปเดต state ตัวใหม่
     setBookmarkedJobs(updated);
+    // เขียนข้อมูลชุดใหม่ทับใน localStorage 
     localStorage.setItem(userKey, JSON.stringify(updated));
+    // ส่งอีเวนต์ storage แจ้งเตือนเพื่อให้ component เช่น Navbar อัปเดตยอดคงเหลือ
     window.dispatchEvent(new Event("storage"));
   };
 
-  // ฟังก์ชันสำหรับลบงานที่บันทึกไว้ทั้งหมด
+  // ฟังก์ชันสำหรับลบตำแหน่งงานที่บันทึกไว้ทิ้งทั้งหมดในครั้งเดียว
   const handleClearAll = () => {
     if (!userKey) return;
+    // เคลียร์ state ให้ว่างเปล่า
     setBookmarkedJobs([]);
+    // ลบ Key ที่ผูกกับผู้ใช้นี้ออกจาก localStorage 
     localStorage.removeItem(userKey);
+    // ส่งอีเวนต์ storage เพื่อสั่งให้อัปเดต UI ทันที
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -83,30 +90,15 @@ export default function Bookmark() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {bookmarkedJobs.map((job) => (
               <div key={job.id} className="relative group">
-                <JobCard job={job} />
-
-                {/* ปุ่มลบและฟังก์ชันเมื่อนำเมาส์ไปชี้ */}
-                <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => handleRemoveBookmark(job.id)}
-                    className="p-2 bg-white rounded-lg shadow-lg hover:bg-red-50 transition"
-                    title="ลบออกจากรายการ"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
-
-                  <Link
-                    to={`/job/${job.id}`}
-                    className="p-2 bg-white rounded-lg shadow-lg hover:bg-blue-50 transition"
-                    title="ดูรายละเอียด"
-                  >
-                    <ExternalLink className="w-4 h-4 text-blue-600" />
-                  </Link>
-                </div>
+                <JobCard
+                  job={job}
+                  isBookmarkPage={true}
+                  onDelete={handleRemoveBookmark}
+                />
 
                 {/* วันที่บันทึก */}
                 {job.savedAt && (
-                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                  <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full pointer-events-none">
                     <p className="text-xs text-gray-600">
                       บันทึกเมื่อ {job.savedAt}
                     </p>
