@@ -10,12 +10,15 @@ import {
   LogOut,
 } from "lucide-react";
 
+// คอมโพเนนต์แถบเมนูนำทางด้านบน (Navbar)
 export default function Navbar() {
+  // สถานะสำหรับเก็บข้อมูลผู้ใช้งานที่ล็อกอินอยู่
   const [user, setUser] = useState(null);
+  // สถานะสำหรับเปิด/ปิดเมนู Dropdown โปรไฟล์
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  // โหลด user + ฟังการเปลี่ยนแปลง
+  // ฟังก์ชันสำหรับโหลดและตรวจสอบข้อมูลผู้ใช้อยู่เสมอ
   useEffect(() => {
     const loadUser = () => {
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -24,24 +27,27 @@ export default function Navbar() {
 
     loadUser();
 
-    // ฟัง event เวลา login/logout
+    // ดักจับการเปลี่ยนแปลงสถานะใน localStorage เพื่อให้ Navbar อัปเดตทันที
     window.addEventListener("storage", loadUser);
     return () => window.removeEventListener("storage", loadUser);
   }, []);
 
+  // ฟังก์ชันจัดการการออกจากระบบ
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
     setUser(null);
 
-    // trigger update
+    // อัปเดตการทำงานผ่าน Event Storage เพื่อให้รีเฟรชสถานะได้ทั่วแอพฯ
     window.dispatchEvent(new Event("storage"));
 
     navigate("/login");
   };
 
+  // ฟังก์ชันเช็คว่าหน้าปัจจุบันเป็น Active หรือไม่ เพื่อปรับสีปุ่มกระตุ้น
   const isActive = (path) => location.pathname === path;
 
   return (
+    // แถบนำทางด้านบนสุด Fix ไว้ด้านบน
     <nav className="border-b bg-white top-0 z-50 sticky px-4 md:px-8 py-4 flex items-center justify-between">
       <Link
         to="/"
@@ -51,6 +57,7 @@ export default function Navbar() {
         <span>JobPortal</span>
       </Link>
 
+      {/* เมนูนำทางตรงกลาง (แสดงเฉพาะจอขนาดกลางขึ้นไป) */}
       <div className="hidden md:flex space-x-8 text-gray-600 font-medium">
         <Link
           to="/"
@@ -74,6 +81,7 @@ export default function Navbar() {
         </Link>
       </div>
 
+      {/* โซนขวาของ Navbar: ปุ่มสมาชิก / โปรไฟล์ผู้ใช้งาน */}
       <div className="flex items-center space-x-4">
         {user ? (
           <div className="relative">

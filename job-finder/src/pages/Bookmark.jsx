@@ -116,7 +116,7 @@ export default function Bookmark() {
             ))}
           </div>
         ) : (
-          {/* กรณีที่ไม่มีข้อมูลงานบันทึกไว้ (สถานะว่างเปล่า) */}
+          // กรณีที่ไม่มีข้อมูลงานบันทึกไว้ (สถานะว่างเปล่า)
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
               <BookmarkIcon className="w-12 h-12 text-gray-400" />

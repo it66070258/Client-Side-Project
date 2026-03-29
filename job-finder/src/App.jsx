@@ -27,22 +27,8 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/bookmark"
-            element={
-              <ProtectedRoute>
-                <Bookmark />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>}/>
+          <Route path="/bookmark" element={<ProtectedRoute><Bookmark /></ProtectedRoute>}/>
           <Route path="/job/:id" element={<JobDetail />} />
         </Routes>
       </main>

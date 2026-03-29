@@ -2,7 +2,9 @@ import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Bookmark, MapPin, Briefcase, Clock } from "lucide-react";
 
+// คอมโพเนนต์สำหรับแสดงการ์ดรายละเอียดงานแต่ละรายการ
 function JobCard({ job, onToggleBookmark, isBookmarked }) {
+  // หากไม่มีข้อมูลส่งมา ให้คืนค่าเป็น null เพื่อไม่แสดงผล
   if (!job) return null;
 
   return (
@@ -21,13 +23,16 @@ function JobCard({ job, onToggleBookmark, isBookmarked }) {
           <Bookmark className="w-5 h-5" />
         </button>
 
+        {/* แสดงไอคอนประกอบงาน หรือไอคอนบริษัทเริ่มต้น */}
         <div className="text-4xl mb-4">{job.icon || "🏢"}</div>
 
+        {/* ชื่อตำแหน่งงานและชื่อบริษัท */}
         <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
           {job.title}
         </h3>
         <p className="text-gray-500 text-sm mb-4">{job.company}</p>
 
+        {/* ข้อมูลสรุป: สถานที่ทำงาน, รูปแบบงาน, และเวลาที่ประกาศ */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-sm text-gray-600">
             <MapPin className="w-4 h-4 mr-2 text-gray-400" />
@@ -43,6 +48,7 @@ function JobCard({ job, onToggleBookmark, isBookmarked }) {
           </div>
         </div>
 
+        {/* แท็กทักษะหรือคีย์เวิร์ดที่เกี่ยวข้องกับงาน */}
         <div className="flex flex-wrap gap-2 mb-6 flex-grow content-start pt-2">
           {job.tags?.map((tag, i) => (
             <span
@@ -54,6 +60,7 @@ function JobCard({ job, onToggleBookmark, isBookmarked }) {
           ))}
         </div>
 
+        {/* รายได้หรือช่วงเงินเดือน */}
         <div className="text-blue-600 font-bold border-t border-gray-100 pt-4">
           {job.salary}
         </div>

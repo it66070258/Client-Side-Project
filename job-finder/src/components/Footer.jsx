@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { Briefcase } from "lucide-react";
 
+// คอมโพเนนต์สำหรับแสดงส่วนท้ายของหน้าเว็บไซต์ (Footer)
 export default function Footer() {
   return (
+    // ส่วนพื้นหลังของ Footer
     <footer className="bg-white pt-16 pb-8 px-4 md:px-8 border-t border-gray-200">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        {/* ส่วนแสดงโลโก้และคำอธิบายแพลตฟอร์ม */}
         <div>
           <Link
             to="/"
@@ -17,14 +20,12 @@ export default function Footer() {
             แพลตฟอร์มจัดหางานออนไลน์ที่ดีที่สุด เชื่อมโยงผู้หางานกับบริษัทชั้นนำ
           </p>
         </div>
+        {/* ส่วนรายการเมนูสำหรับผู้หางาน */}
         <div>
           <h4 className="font-bold text-gray-900 mb-4">สำหรับผู้หางาน</h4>
           <ul className="space-y-3 text-sm text-gray-500">
             <li>
-              <Link
-                to="/"
-                className="hover:text-blue-600 transition-colors"
-              >
+              <Link to="/" className="hover:text-blue-600 transition-colors">
                 ค้นหางาน
               </Link>
             </li>
@@ -46,35 +47,28 @@ export default function Footer() {
             </li>
           </ul>
         </div>
+        {/* ส่วนรายการเมนูเกี่ยวกับเรา */}
         <div>
           <h4 className="font-bold text-gray-900 mb-4">เกี่ยวกับเรา</h4>
           <ul className="space-y-3 text-sm text-gray-500">
             <li>
-              <Link
-                to="#"
-                className="hover:text-blue-600 transition-colors"
-              >
+              <Link to="#" className="hover:text-blue-600 transition-colors">
                 เกี่ยวกับบริษัท
               </Link>
             </li>
             <li>
-              <Link
-                to="#"
-                className="hover:text-blue-600 transition-colors"
-              >
+              <Link to="#" className="hover:text-blue-600 transition-colors">
                 ติดต่อเรา
               </Link>
             </li>
             <li>
-              <Link
-                to="#"
-                className="hover:text-blue-600 transition-colors"
-              >
+              <Link to="#" className="hover:text-blue-600 transition-colors">
                 นโยบายความเป็นส่วนตัว
               </Link>
             </li>
           </ul>
         </div>
+        {/* ส่วนประกาศโซเชียลมีเดียและช่องทางติดตาม */}
         <div>
           <h4 className="font-bold text-gray-900 mb-4">ติดตามเรา</h4>
           <ul className="space-y-3 text-sm text-gray-500">
@@ -96,6 +90,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
+      {/* ส่วนประกาศลิขสิทธิ์เว็บไซต์ด้านล่างสุด */}
       <div className="max-w-6xl mx-auto text-center text-sm text-gray-500 pt-8 border-t border-gray-100">
         © 2026 JobPortal. All rights reserved.
       </div>

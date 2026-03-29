@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
+// คอมโพเนนต์แบบฟอร์มสำหรับการค้นหางาน
 export default function SearchBar({ onSearch, searchQuery = "" }) {
+  // สถานะช่องกรอกข้อความสำหรับการค้นหางาน
   const [jobQuery, setJobQuery] = useState(searchQuery);
 
   useEffect(() => {
     setJobQuery(searchQuery);
   }, [searchQuery]);
 
+  // ฟังก์ชันเมื่อผู้ใช้กดยืนยันการค้นหา หรือ กด Enter
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSearch) {
@@ -15,6 +18,7 @@ export default function SearchBar({ onSearch, searchQuery = "" }) {
     }
   };
 
+  // ฟังก์ชันบันทึกตัวอักษรที่พิมพ์ลงในกล่องข้อความ
   const handleChange = (e) => {
     setJobQuery(e.target.value);
   };
@@ -24,6 +28,7 @@ export default function SearchBar({ onSearch, searchQuery = "" }) {
       onSubmit={handleSubmit}
       className="bg-white p-2 md:p-3 rounded-xl shadow-lg flex flex-col md:flex-row items-center w-full max-w-4xl mx-auto space-y-2 md:space-y-0"
     >
+      {/* ไอคอนและช่อง Input สำหรับพิมพ์ข้อความค้นหา */}
       <div className="flex-1 flex items-center px-4 w-full relative">
         <Search className="text-gray-400 w-5 h-5 absolute left-4" />
         <input
